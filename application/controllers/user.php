@@ -5,13 +5,13 @@ if (!defined('BASEPATH'))
 
 /**
  * Copyright (c) 2012, Aaron Benson - GalleryCMS - http://www.gallerycms.com
- * 
- * GalleryCMS is a free software application built on the CodeIgniter framework. 
+ *
+ * GalleryCMS is a free software application built on the CodeIgniter framework.
  * The GalleryCMS application is licensed under the MIT License.
  * The CodeIgniter framework is licensed separately.
- * The CodeIgniter framework license is packaged in this application (license.txt) 
+ * The CodeIgniter framework license is packaged in this application (license.txt)
  * or read http://codeigniter.com/user_guide/license.html
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -20,10 +20,10 @@ if (!defined('BASEPATH'))
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -32,7 +32,7 @@ if (!defined('BASEPATH'))
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  */
 class User extends MY_Controller
 {
@@ -48,7 +48,7 @@ class User extends MY_Controller
       $this->load->model('user_model');
     }
   }
-  
+
   /**
    * Displays list of users.
    */
@@ -57,16 +57,16 @@ class User extends MY_Controller
     $data = array();
     $data['users'] = $this->user_model->fetch_all();
     $flash_login_success = $this->session->flashdata('flash_message');
-    
+
     if (isset($flash_login_success) && ! empty($flash_login_success))
     {
       $data['flash'] = $flash_login_success;
     }
-    
+
     $data['user_data'] = $this->get_user_data();
     $this->load->view('user/index', $data);
   }
-  
+
   /**
    * Displays form for new user creation.
    */
@@ -80,7 +80,7 @@ class User extends MY_Controller
     $this->load->helper('form');
     $this->load->view('user/create');
   }
-  
+
   /**
    * Handles new user creation.
    */
@@ -107,7 +107,7 @@ class User extends MY_Controller
       // Success, create user & redirect
       $now = date('Y-m-d H:i:s');
       $user_data = array(
-                   'email_address'   => $this->input->post('email_address'), 
+                   'email_address'   => $this->input->post('email_address'),
                    'password'        => $this->input->post('password'),
                    'is_active'       => $this->input->post('is_active'),
                    'is_admin'        => $this->input->post('is_admin'),
@@ -119,32 +119,32 @@ class User extends MY_Controller
       redirect('user/index');
     }
   }
-  
+
   /**
    * Display form for editing an existing user.
    *
-   * @param type $user_id 
+   * @param type $user_id
    */
   public function edit($user_id)
   {
     $user_data = $this->get_user_data();
-    if ($user_data['user_id'] == $user_id)
-    {
-      redirect('user');
-      exit();
-    }
+    // if ($user_data['user_id'] == $user_id)
+    // {
+    //   redirect('user');
+    //   exit();
+    // }
     $this->load->helper('form');
-    
+
     $data = array();
     $data['user'] = $this->user_model->find_by_id($user_id);
-    
+
     $this->load->view('user/edit', $data);
   }
-  
+
   /**
    * Process editing user.
    *
-   * @param type $user_id 
+   * @param type $user_id
    */
   public function update($user_id)
   {
@@ -157,10 +157,10 @@ class User extends MY_Controller
     // Validate form.
     $this->load->helper('form');
     $user = $this->user_model->find_by_id($user_id);
-    
+
     $data = array();
     $data['user'] = $user;
-    
+
     $this->load->library('form_validation');
     $this->form_validation->set_error_delimiters('<div class="alert alert-error"><strong>Error: </strong>', '</div>');
     $email_address = $this->input->post('email_address');
@@ -180,7 +180,7 @@ class User extends MY_Controller
       // Success, create user & redirect
       $now = date('Y-m-d H:i:s');
       $user_data = array(
-                   'email_address' => $this->input->post('email_address'), 
+                   'email_address' => $this->input->post('email_address'),
                    'is_active' => $this->input->post('is_active'),
                    'is_admin' => $this->input->post('is_admin'),
                    'created_at' => $now,
@@ -196,11 +196,11 @@ class User extends MY_Controller
       redirect("user");
     }
   }
-  
+
   /**
    * De-activates user and user's images.
    *
-   * @param type $user_id 
+   * @param type $user_id
    */
   public function deactivate($user_id)
   {
@@ -213,16 +213,16 @@ class User extends MY_Controller
     // Unpublish user's images.
     $this->load->model('image_model');
     $this->image_model->update_by_user_id(array('published' => 0), $user_id);
-    
+
     $this->user_model->update(array('is_active' => 0), $user_id);
     $this->session->set_flashdata('flash_message', "User has been deactivated. This user's albums have been unpublished.");
     redirect("user");
   }
-  
+
   /**
    * Deletes user, user's albums, images.
    *
-   * @param type $user_id 
+   * @param type $user_id
    */
   public function remove($user_id)
   {
@@ -236,7 +236,7 @@ class User extends MY_Controller
     $this->load->model('image_model');
     $this->load->model('config_model');
     // Remove user's images and albums
-    
+
     $albums = $this->album_model->fetch_by_user_id($user_id);
     if ( ! empty($albums))
     {
@@ -260,7 +260,7 @@ class User extends MY_Controller
             }
           }
         }
-        
+
         // Delete image records
         $this->image_model->delete_by_album_id($album->id);
         // Delete album record
@@ -269,11 +269,11 @@ class User extends MY_Controller
         $this->config_model->delete_by_album_id($album->id);
       }
     }
-    
+
     $this->user_model->delete($user_id);
-    
+
     $this->session->set_flashdata('flash_message', "Successfully deleted user. Albums and images belonging this data have been erased.");
     redirect('user');
   }
-  
+
 }

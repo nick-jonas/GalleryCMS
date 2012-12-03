@@ -42,18 +42,16 @@
       <td><?php echo $user->last_ip; ?></td>
       <td>
         <div class="btn-group">
-          <a class="btn dropdown-toggle<?php if ($user_data['is_admin'] != 1 || $user_data['user_id'] == $user->id): ?> disabled<?php endif; ?>" data-toggle="dropdown" href="#">
+          <a class="btn dropdown-toggle<?php if ($user_data['is_admin'] != 1): ?> disabled<?php endif; ?>" data-toggle="dropdown" href="#">
             Action
             <span class="caret"></span>
           </a>
-          <?php if ($user_data['is_admin'] == 1 && $user_data['user_id'] != $user->id): ?>
+          <?php if ($user_data['is_admin'] == 1): ?>
           <ul class="dropdown-menu">
             <li><a href="<?php echo site_url("user/edit/$user->id"); ?>"><i class="icon-pencil"></i> Edit</a></li>
-            <?php if ($user_data['is_admin'] == 1): ?>
             <li><a href="<?php echo site_url("user/deactivate/$user->id"); ?>"><i class="icon-ban-circle"></i> Deactivate</a></li>
             <li><a class="user-delete-btn" href="#user-modal" data-toggle="modal" rel="<?php echo site_url("user/remove/$user->id"); ?>">
                 <i class="icon-trash"></i> Delete</a></li>
-            <?php endif; ?>
           </ul>
           <?php endif; ?>
         </div>
@@ -85,7 +83,7 @@ $(document).ready(function() {
   $('.user-delete-btn').click(function() {
     deleteUrl = $(this).attr('rel');
   });
-  
+
   $('#user-modal').on('show', function() {
     $('#user-modal-delete-btn').attr('href', deleteUrl);
   });
