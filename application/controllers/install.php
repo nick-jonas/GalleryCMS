@@ -5,13 +5,13 @@ if (!defined('BASEPATH'))
 
 /**
  * Copyright (c) 2012, Aaron Benson - GalleryCMS - http://www.gallerycms.com
- * 
- * GalleryCMS is a free software application built on the CodeIgniter framework. 
+ *
+ * GalleryCMS is a free software application built on the CodeIgniter framework.
  * The GalleryCMS application is licensed under the MIT License.
  * The CodeIgniter framework is licensed separately.
- * The CodeIgniter framework license is packaged in this application (license.txt) 
+ * The CodeIgniter framework license is packaged in this application (license.txt)
  * or read http://codeigniter.com/user_guide/license.html
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -20,10 +20,10 @@ if (!defined('BASEPATH'))
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -32,28 +32,28 @@ if (!defined('BASEPATH'))
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  */
 class Install extends MY_Controller
 {
   public function __construct()
   {
     parent::__construct();
-    
+
     if ($this->db->table_exists('user'))
     {
       redirect('auth');
       exit();
     }
   }
-  
+
   /**
    * Display registration form. Process form, create database tables, create new user, authenticate.
    */
   public function index()
   {
     $data['email'] = '';
-    
+
     if ($this->is_method_post() == TRUE)
     {
       // Validate form.
@@ -78,11 +78,11 @@ class Install extends MY_Controller
         $data['email'] = $this->input->post('email_address');
       }
     }
-    
+
     $this->load->helper('form');
     $this->load->view('install/index', $data);
   }
-  
+
   /**
    * Creates database tables.
    */
@@ -137,11 +137,11 @@ class Install extends MY_Controller
             'constraint'      => 45
         )
     );
-    
+
     $this->dbforge->add_field($user);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('user', TRUE);
-    
+
     // album table
     $album = array(
         'id'             => array(
@@ -155,6 +155,10 @@ class Install extends MY_Controller
             'null'            => TRUE
         ),
         'name'           => array(
+            'type'            => 'VARCHAR',
+            'constraint'      => 45
+        ),
+        'sanitized_name' => array(
             'type'            => 'VARCHAR',
             'constraint'      => 45
         ),
@@ -178,11 +182,11 @@ class Install extends MY_Controller
             'type'            => 'DATETIME'
         )
     );
-    
+
     $this->dbforge->add_field($album);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('album', TRUE);
-    
+
     // album_config table
     $album_config = array(
         'id'             => array(
@@ -214,11 +218,11 @@ class Install extends MY_Controller
             'default'         => 1
         )
     );
-    
+
     $this->dbforge->add_field($album_config);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('album_config', TRUE);
-    
+
     // image table
     $image = array(
         'id'             => array(
@@ -308,11 +312,11 @@ class Install extends MY_Controller
             'unsigned'        => TRUE,
         )
     );
-    
+
     $this->dbforge->add_field($image);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('image', TRUE);
-    
+
     // image_comment table
     $image_comment = array(
         'id'             => array(
@@ -335,11 +339,11 @@ class Install extends MY_Controller
             'null'            => TRUE
         )
     );
-    
+
     $this->dbforge->add_field($image_comment);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('image_comment', TRUE);
-    
+
     // ticket table
     $ticket = array(
         'id'             => array(
@@ -358,11 +362,11 @@ class Install extends MY_Controller
             'null'            => TRUE
         )
     );
-    
+
     $this->dbforge->add_field($ticket);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('ticket', TRUE);
-    
+
     // feed table
     $feed = array(
         'id'             => array(
@@ -390,11 +394,11 @@ class Install extends MY_Controller
             'null'            => TRUE
         )
     );
-    
+
     $this->dbforge->add_field($feed);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('feed', TRUE);
-    
+
     // feed_album table
     $feed_album = array(
         'id'             => array(
@@ -417,11 +421,11 @@ class Install extends MY_Controller
             'null'            => TRUE
         )
     );
-    
+
     $this->dbforge->add_field($feed_album);
     $this->dbforge->add_key('id', TRUE);
     $this->dbforge->create_table('feed_album', TRUE);
-    
+
     // Change permissions for uploads folder to enable uploading of files.
     $upload_dir = './uploads';
     if ( ! file_exists($upload_dir))
@@ -432,12 +436,12 @@ class Install extends MY_Controller
     {
       chmod($upload_dir, 0775);
     }
-    
+
     // Success, create user & redirect
     $this->load->model('user_model');
     $now = date('Y-m-d H:i:s');
     $user_data = array(
-                  'email_address'   => $this->input->post('email_address'), 
+                  'email_address'   => $this->input->post('email_address'),
                   'password'        => $this->input->post('password'),
                   'is_active'       => 1,
                   'is_admin'        => 1,
@@ -449,16 +453,16 @@ class Install extends MY_Controller
     $user = $this->user_model->find_by_id($user_id);
     // Sign in
     $this->create_login_session($user);
-    
+
     $this->session->set_flashdata('flash_message', "User successfully created. You are now logged in");
-     
+
    return TRUE;
   }
-  
+
   /**
    * Creates session data for logged in user.
    *
-   * @param type $user 
+   * @param type $user
    */
   protected function create_login_session($user)
   {
@@ -471,5 +475,5 @@ class Install extends MY_Controller
     );
     $this->session->set_userdata($session_data);
   }
-  
+
 }
