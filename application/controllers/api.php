@@ -5,13 +5,13 @@ if (!defined('BASEPATH'))
 
 /**
  * Copyright (c) 2012, Aaron Benson - GalleryCMS - http://www.gallerycms.com
- * 
- * GalleryCMS is a free software application built on the CodeIgniter framework. 
+ *
+ * GalleryCMS is a free software application built on the CodeIgniter framework.
  * The GalleryCMS application is licensed under the MIT License.
  * The CodeIgniter framework is licensed separately.
- * The CodeIgniter framework license is packaged in this application (license.txt) 
+ * The CodeIgniter framework license is packaged in this application (license.txt)
  * or read http://codeigniter.com/user_guide/license.html
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -20,10 +20,10 @@ if (!defined('BASEPATH'))
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -32,7 +32,7 @@ if (!defined('BASEPATH'))
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  */
 class Api extends MY_Controller
 {
@@ -44,11 +44,11 @@ class Api extends MY_Controller
     $this->load->model('image_model');
     $this->load->model('config_model');
   }
-  
+
   /**
    * Handles image uploads.
    *
-   * @param type $album_id 
+   * @param type $album_id
    */
   public function upload($album_id)
   {
@@ -59,9 +59,9 @@ class Api extends MY_Controller
     $config['remove_spaces']  = TRUE;
     $config['encrypt_name']   = FALSE;
     $config['overwrite']      = FALSE;
-    
+
     $this->load->library('upload', $config);
-    
+
     if ( ! $this->upload->do_upload('Filedata'))
     {
       header('HTTP/1.1 500 Internal Server Error');
@@ -70,7 +70,7 @@ class Api extends MY_Controller
     else
     {
       $upload_info = $this->upload->data();
-      
+
       $album_config = $this->config_model->get_by_album_id($album_id);
 
       // Insert file information into database
@@ -81,12 +81,15 @@ class Api extends MY_Controller
         $order_num = 0;
       }
       $order_num++;
+
       $image_data = array(
       'album_id'       => $album_id,
       'uuid'           => $this->create_uuid(),
       'name'           => $upload_info['file_name'],
       'order_num'      => $order_num,
       'caption'        => '',
+      'width'          => $upload_info['image_width'],
+      'height'         => $upload_info['image_height'],
       'raw_name'       => $upload_info['raw_name'],
       'file_type'      => $upload_info['file_type'],
       'file_name'      => $upload_info['file_name'],
@@ -103,17 +106,17 @@ class Api extends MY_Controller
       $image_id = $this->image_model->create($image_data);
 
       $this->album_model->update(array('updated_at' => $now), $album_id);
-      
+
       echo $image_id;
     }
   }
-  
+
   /**
    * Displays json/xml feed for grouped feeds.
    *
    * @param type $type
-   * @param type $feed_uuid 
-   * @throws Exception 
+   * @param type $feed_uuid
+   * @throws Exception
    */
   public function myfeed($type, $feed_uuid)
   {
@@ -133,13 +136,13 @@ class Api extends MY_Controller
         break;
     }
   }
-  
+
   /**
    * Displays json/xml feed for singular albums.
    *
    * @param type $type
    * @param type $album_uuid
-   * @throws Exception 
+   * @throws Exception
    */
   public function feed($type, $album_uuid)
   {
@@ -159,53 +162,53 @@ class Api extends MY_Controller
         break;
     }
   }
-  
+
   /**
    *
-   * @param type $album_uuid 
+   * @param type $album_uuid
    */
   protected function output_json_feed($album_uuid)
   {
     echo json_encode($this->get_feed($album_uuid));
   }
-  
+
   /**
    *
-   * @param type $feed_uuid 
+   * @param type $feed_uuid
    */
   protected function output_my_json_feed($feed_uuid)
   {
     echo json_encode($this->get_my_feed($feed_uuid));
   }
-  
+
   /**
    *
-   * @param type $album_uuid 
+   * @param type $album_uuid
    */
   protected function output_xml_feed($album_uuid)
   {
     $data = array();
     $data['album'] = $this->get_feed($album_uuid);
-    
+
     $this->load->view('api/xml_album', $data);
   }
-  
+
   /**
    *
-   * @param type $feed_uuid 
+   * @param type $feed_uuid
    */
   protected function output_my_xml_feed($feed_uuid)
   {
     $data = array();
     $data['feed'] = $this->get_my_feed($feed_uuid);
-    
+
     $this->load->view('api/xml_feed', $data);
   }
-  
+
   /**
    *
    * @param type $album_uuid
-   * @return type 
+   * @return type
    */
   protected function get_feed($album_uuid)
   {
@@ -215,20 +218,20 @@ class Api extends MY_Controller
       return array();
     }
     $image_data = $this->image_model->get_feed($album->id);
-    
+
     foreach ($image_data as $image)
     {
       $image->url = base_url() . 'uploads/' . $image->file_name;
       $image->thumb = base_url() . 'uploads/' . $image->raw_name . '_thumb' . $image->file_ext;
     }
     $album->images = $image_data;
-    
+
     return $album;
   }
-  
+
   /**
    *
-   * @param type $feed_uuid 
+   * @param type $feed_uuid
    * @return type
    */
   protected function get_my_feed($feed_uuid)
@@ -239,7 +242,7 @@ class Api extends MY_Controller
       return array();
     }
     $feed_albums = $this->feed_model->get_feed_albums($feed->id);
-    
+
     $albums = array();
     foreach ($feed_albums as $feed_album)
     {
@@ -254,10 +257,9 @@ class Api extends MY_Controller
       array_push($albums, $album);
     }
     $feed->albums = $albums;
-    
-    
+
+
     return $feed;
   }
-  
+
 }
-  

@@ -278,6 +278,14 @@ class Install extends MY_Controller
             'constraint'      => 45,
             'null'            => TRUE
         ),
+        'width'          => array(
+            'type'            => 'DOUBLE',
+            'null'            => TRUE
+        ),
+        'height'          => array(
+            'type'            => 'DOUBLE',
+            'null'            => TRUE
+        ),
         'path'           => array(
             'type'            => 'VARCHAR',
             'constraint'      => 45,
@@ -289,6 +297,11 @@ class Install extends MY_Controller
             'null'            => TRUE
         ),
         'published'      => array(
+            'type'            => 'TINYINT',
+            'constraint'      => 1,
+            'null'            => FALSE
+        ),
+        'cover_image'      => array(
             'type'            => 'TINYINT',
             'constraint'      => 1,
             'null'            => FALSE
